@@ -1,20 +1,22 @@
 package com.radach.gpstrackerreal;
 
 import android.content.Context;
-import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.location.Location;
-import android.os.BatteryManager;
 import android.os.Looper;
-import android.provider.Settings;
+
+import androidx.annotation.NonNull;
 
 import com.google.android.gms.location.*;
 import com.google.android.gms.location.FusedLocationProviderClient;
 
+import java.util.UUID;
+
 public class LocationTracker {
-    private Context context;
-    private FusedLocationProviderClient fusedLocationClient;
+    private final Context context;
+    private final FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
-    private DataUploader dataUploader;
+    private final DataUploader dataUploader;
 
     public LocationTracker(Context context) {
         this.context = context;
@@ -27,9 +29,7 @@ public class LocationTracker {
     private void setupLocationCallback() {
         locationCallback = new LocationCallback() {
             @Override
-            public void onLocationResult(LocationResult locationResult) {
-                if (locationResult == null) return;
-
+            public void onLocationResult(@NonNull LocationResult locationResult) {
                 for (Location location : locationResult.getLocations()) {
                     handleLocationUpdate(location);
                 }
@@ -38,7 +38,12 @@ public class LocationTracker {
     }
 
     private void handleLocationUpdate(Location location) {
-        String deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        SharedPreferences prefs = context.getSharedPreferences("my_app_prefs", Context.MODE_PRIVATE);
+        String deviceId = prefs.getString("device_id", null);
+        if (deviceId == null) {
+            deviceId = UUID.randomUUID().toString();
+            prefs.edit().putString("device_id", deviceId).apply();
+        }
 
         LocationData locationData = new LocationData(
                 System.currentTimeMillis(),
@@ -53,10 +58,12 @@ public class LocationTracker {
     }
 
     public void startLocationUpdates() {
-        LocationRequest locationRequest = LocationRequest.create()
-                .setInterval(60000) // 1 minute
-                .setFastestInterval(30000) // 30 seconds
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        LocationRequest locationRequest = new LocationRequest.Builder(
+                Priority.PRIORITY_HIGH_ACCURACY, // priority
+                600000L // interval in milliseconds
+        )
+                .setMinUpdateIntervalMillis(300000L)  // fastest interval
+                .build();
 
         try {
             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());

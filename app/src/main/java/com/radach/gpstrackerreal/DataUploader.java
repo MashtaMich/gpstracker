@@ -1,10 +1,10 @@
 package com.radach.gpstrackerreal;
 
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.util.Log;
 import okhttp3.*;
 import org.json.JSONObject;
-import java.io.IOException;
 
 public class DataUploader {
     private static final String TAG = "DataUploader";
@@ -12,7 +12,7 @@ public class DataUploader {
     // Replace with your Apps Script web app URL
     private static final String APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqY9RT6UHEovG2OIk4xvZg1rHXsInypc0nEI0nJQqWjILWXl4VrMMuaeaY3IFyLvpw/exec";
 
-    private OkHttpClient client;
+    private final OkHttpClient client;
 
     public DataUploader() {
         this.client = new OkHttpClient();
@@ -22,6 +22,7 @@ public class DataUploader {
         new UploadTask().execute(locationData);
     }
 
+    @SuppressLint("StaticFieldLeak")
     private class UploadTask extends AsyncTask<LocationTracker.LocationData, Void, Void> {
         @Override
         protected Void doInBackground(LocationTracker.LocationData... locationDataArray) {

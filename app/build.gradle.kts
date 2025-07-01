@@ -42,14 +42,14 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.9.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation(libs.appcompat.v171)
+    implementation(libs.material.v190)
+    implementation(libs.constraintlayout.v221)
 
     // Google Play Services for Location
-    implementation("com.google.android.gms:play-services-location:20.0.0")
+    implementation(libs.play.services.location.v2000)
 
     // HTTP client for API calls
-    implementation("com.squareup.okhttp3:okhttp:4.9.3")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
+    implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
 }
